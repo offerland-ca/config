@@ -16,7 +16,7 @@
 profile=no
 # Add <file or directory> to the black list. It should be a base name, not a
 # path. You may set this option multiple times.
-ignore=SVN,migrations
+ignore=SVN,migrations,sandbox
 # Pickle collected data for later comparisons.
 persistent=yes
 # Set the cache size for astng objects.

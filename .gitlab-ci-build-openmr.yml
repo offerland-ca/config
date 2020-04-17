@@ -1,3 +1,7 @@
+stages:
+  - build
+  - openMr
+
 # The build tasks are all exactly the same in all services
 build:
   stage: build
@@ -13,10 +17,10 @@ build:
     - echo "Building the image"
     - export TAG_NAME=$CI_COMMIT_REF_SLUG-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`
     - echo $TAG_NAME
-    - docker build -t $ECR_URI_BASE/offerland/$SERVICE_NAME:$TAG_NAME -t $ECR_URI_BASE/offerland/$CI_COMMIT_REF_SLUG-latest .
+    - docker build -t $ECR_URI_BASE/offerland/$SERVICE_NAME:$TAG_NAME -t $ECR_URI_BASE/offerland/$SERVICE_NAME:$CI_COMMIT_REF_SLUG-latest .
     - echo "Push image to AWS ECR as $ECR_URI_BASE/offerland/$SERVICE_NAME"
     - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$TAG_NAME
-    - docker push $ECR_URI_BASE/offerland/$CI_COMMIT_REF_SLUG-latest
+    - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$CI_COMMIT_REF_SLUG-latest
   only:
     - update-gitlab-ci
     - staging

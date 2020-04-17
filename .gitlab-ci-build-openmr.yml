@@ -1,0 +1,37 @@
+# The build tasks are all exactly the same in all services
+build:
+  stage: build
+  image: amirabdi/docker:19.03.7-git-awscli2
+  services:
+    - docker:18.09.7-dind
+  before_script:
+    - aws configure set region us-west-2
+    - aws configure set aws_access_key_id $AWS_REGISTRY_ID
+    - aws configure set aws_secret_access_key $AWS_REGISTRY_SECRET
+    - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI_BASE
+  script:
+    - echo "Building the image"
+    - export TAG_NAME=$CI_COMMIT_REF_SLUG-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`
+    - echo $TAG_NAME
+    - docker build -t $ECR_URI_BASE/offerland/$SERVICE_NAME:$TAG_NAME -t $ECR_URI_BASE/offerland/$CI_COMMIT_REF_SLUG-latest .
+    - echo "Push image to AWS ECR as $ECR_URI_BASE/offerland/$SERVICE_NAME"
+    - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$TAG_NAME
+    - docker push $ECR_URI_BASE/offerland/$CI_COMMIT_REF_SLUG-latest
+  only:
+    - update-gitlab-ci
+    - staging
+    - development
+    - master
+
+# The Open Merge Request tasks are all exactly the same in all services
+Open Merge Request:
+  stage: openMr
+  image: amirabdi/gitlab-auto-merge-request:1.1
+  before_script: []
+  variables:
+    TARGET_BRANCH: staging
+    GIT_STRATEGY: none # We do not need a clone of the GIT repository to create a Merge Request
+  only:
+    - development
+  script:
+    - bash merge-request.sh

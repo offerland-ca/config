@@ -1,6 +1,7 @@
 stages:
   - build
   - openMr
+  - deploy
 
 # The build tasks are all exactly the same in all services
 build:
@@ -38,3 +39,13 @@ Open Merge Request:
     - development
   script:
     - bash merge-request.sh
+
+# Hit the staging webhook to replace the image
+deploy:
+  stage: deploy
+  image: alpine
+  script:
+    - apk add --update curl
+    - curl -XPOST $PORTAINER_STAGING_WEBHOOK
+  only:
+    - staging

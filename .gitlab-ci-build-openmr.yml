@@ -1,6 +1,7 @@
 stages:
   - build
   - openMr
+  - retagging
   - deploy
 
 # The build tasks are all exactly the same in all services
@@ -23,9 +24,7 @@ build:
     - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$TAG_NAME
     - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$CI_COMMIT_REF_SLUG-latest
   only:
-    - staging
     - development
-    - master
 
 # The Open Merge Request tasks are all exactly the same in all services
 Open Merge Request:
@@ -40,6 +39,19 @@ Open Merge Request:
   script:
     - bash merge-request.sh
 
+retag:
+  stage: retagging
+  image: amirabdi/docker:19.03.7-git-awscli2
+  script:
+    - export TAG_NAME=development-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`
+    - echo $TAG_NAME
+    - echo "Retagging development image as staging/master"
+    - MANIFEST=$(aws ecr batch-get-image --repository-name offerland/$SERVICE_NAME --image-ids imageTag=$TAG_NAME --query 'images[].imageManifest' --output text)
+    - aws ecr put-image --repository-name offerland/$SERVICE_NAME --image-tag $CI_COMMIT_REF_SLUG-latest --image-manifest "$MANIFEST"
+  only:
+    - staging
+    - master
+
 # Hit the staging webhook to replace the image
 deploy:
   stage: deploy
@@ -49,3 +61,4 @@ deploy:
     - curl -XPOST $PORTAINER_STAGING_WEBHOOK
   only:
     - staging
+    - master

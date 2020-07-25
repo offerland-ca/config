@@ -63,7 +63,7 @@ deploy:
   image: alpine
   script:
     - apk add --update curl
-    - curl -XPOST $PORTAINER_STAGING_WEBHOOK
+    - curl -XPOST $STAGING_WEBHOOK
   only:
     - staging
     - master

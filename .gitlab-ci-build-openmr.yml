@@ -1,5 +1,6 @@
 stages:
   - build
+  - integrationTest
   - openMr
   - retagging
   - deploy
@@ -25,6 +26,13 @@ build:
     - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$CI_COMMIT_REF_SLUG-latest
   only:
     - development
+
+Integration Test:
+  stage: integrationTest
+  variables:
+    UPSTREAM_SERVICE_NAME: $SERVICE_NAME
+    UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
+  trigger: offerland/root
 
 # The Open Merge Request tasks are all exactly the same in all services
 Open Merge Request:

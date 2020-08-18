@@ -32,9 +32,11 @@ Integration Test:
   variables:
     UPSTREAM_SERVICE_NAME: $SERVICE_NAME
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
-  trigger: 
+  trigger:
     project: offerland/root
     strategy: depend
+  only:
+    - development
 
 # The Open Merge Request tasks are all exactly the same in all services
 Open Merge Request:

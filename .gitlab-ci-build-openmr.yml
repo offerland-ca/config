@@ -1,6 +1,5 @@
 stages:
   - build
-  - integrationTest
   - openMr
   - retagging
   - deploy
@@ -27,16 +26,16 @@ build:
   only:
     - development
 
-Integration Test:
-  stage: integrationTest
-  variables:
-    UPSTREAM_SERVICE_NAME: $SERVICE_NAME
-    UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
-  trigger:
-    project: offerland/root
-    strategy: depend
-  only:
-    - development
+#Integration Test:
+#  stage: integrationTest
+#  variables:
+#    UPSTREAM_SERVICE_NAME: $SERVICE_NAME
+#    UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
+#  trigger:
+#    project: offerland/root
+#    strategy: depend
+#  only:
+#    - development
 
 # The Open Merge Request tasks are all exactly the same in all services
 Open Merge Request:

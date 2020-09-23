@@ -92,7 +92,7 @@ deploy staging:
   image: alpine
   script:
     - apk add --update curl
-    - curl -XPOST $STAGING_WEBHOOK
+    - curl -X POST -H "Content-Type: application/json" --data '{ "verysecret": "$STAGING_WEBHOOK_SECRET" }' $STAGING_WEBHOOK
   only:
     - staging
 
@@ -102,6 +102,7 @@ deploy production:
   image: alpine
   script:
     - apk add --update curl
-    - curl -XPOST $PRODUCTION_WEBHOOK
+    - curl -X POST -H "Content-Type: application/json" --data '{ "verysecret": "$PRODUCTION_WEBHOOK_SECRET" }' $PRODUCTION_WEBHOOK
   only:
     - production
+

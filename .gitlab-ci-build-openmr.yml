@@ -93,7 +93,7 @@ deploy staging:
   script:
     - apk add --update curl
     - |
-      curl -X POST -H "Content-Type: application/json" \
+      curl -f -X POST -H "Content-Type: application/json" \
       --data '{ "verysecret": "'$STAGING_WEBHOOK_SECRET'" }' \
       $STAGING_WEBHOOK
   only:
@@ -106,7 +106,7 @@ deploy production:
   script:
     - apk add --update curl
     - |
-      curl -X POST -H "Content-Type: application/json" \
+      curl -f -X POST -H "Content-Type: application/json" \
       --data '{ "verysecret": "'$PRODUCTION_WEBHOOK_SECRET'" }' \
       $PRODUCTION_WEBHOOK
   only:

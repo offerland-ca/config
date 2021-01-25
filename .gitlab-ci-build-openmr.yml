@@ -7,7 +7,7 @@ stages:
 variables:
   USE_CONTAINER: "true"
   DOCKER_DRIVER: overlay2
-  DOCKER_HOST: tcp://docker:2375
+  DOCKER_HOST: tcp://localhost:2375
   DOCKER_TLS_CERTDIR: ""
 
 # The build tasks are all exactly the same in all services

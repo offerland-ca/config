@@ -4,17 +4,19 @@ stages:
   - retagging
   - deploy
 
+variables:
+  USE_CONTAINER: "true"
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+
+services:
+  - docker:20.10.2-dind
+
 # The build tasks are all exactly the same in all services
 build:
-  variables:
-    USE_CONTAINER: "true"
-    DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
   stage: build
   image: amirabdi/docker:19.03.7-git-awscli2
-  services:
-    - docker:20.10.2-dind
   before_script:
     - aws configure set region us-west-2
     - aws configure set aws_access_key_id $AWS_REGISTRY_ID
@@ -66,6 +68,7 @@ retag dev to staging:
     - aws configure set aws_access_key_id $AWS_REGISTRY_ID
     - aws configure set aws_secret_access_key $AWS_REGISTRY_SECRET
     - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI_BASE
+    - docker info
   script:
     - export TAG_NAME=development-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`
     - echo $TAG_NAME
@@ -83,6 +86,7 @@ retag dev to production:
     - aws configure set aws_access_key_id $AWS_REGISTRY_ID
     - aws configure set aws_secret_access_key $AWS_REGISTRY_SECRET
     - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI_BASE
+    - docker info
   script:
     - export TAG_NAME=development-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`
     - echo $TAG_NAME

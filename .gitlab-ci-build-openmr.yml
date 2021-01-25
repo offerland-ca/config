@@ -4,6 +4,11 @@ stages:
   - retagging
   - deploy
 
+variables:
+  USE_CONTAINER: "true"
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://docker:2375
+
 # The build tasks are all exactly the same in all services
 build:
   stage: build

@@ -9,7 +9,7 @@ build:
   stage: build
   image: amirabdi/docker:19.03.7-git-awscli2
   services:
-    - docker:18.09.7-dind
+    - docker:20.10.2-dind
   before_script:
     - aws configure set region us-west-2
     - aws configure set aws_access_key_id $AWS_REGISTRY_ID

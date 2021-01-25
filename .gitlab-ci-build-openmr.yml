@@ -8,6 +8,7 @@ variables:
   USE_CONTAINER: "true"
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
 
 # The build tasks are all exactly the same in all services
 build:
@@ -20,6 +21,7 @@ build:
     - aws configure set aws_access_key_id $AWS_REGISTRY_ID
     - aws configure set aws_secret_access_key $AWS_REGISTRY_SECRET
     - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI_BASE
+    - docker info
   script:
     - echo "Building the image"
     - export TAG_NAME=$CI_COMMIT_REF_SLUG-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`

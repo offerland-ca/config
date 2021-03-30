@@ -1,0 +1,43 @@
+image: docker:20-dind
+
+stages:
+  - test
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  COMPOSE_HTTP_TIMEOUT: '300'
+  ENV: development
+
+services:
+  - docker:18.09.7-dind
+
+integration_test:
+  stage: test
+  before_script:
+    - echo "Initiated by the $UPSTREAM_BRANCH branch of $UPSTREAM_SERVICE_NAME service"
+    - apk add --update zip curl npm python3 docker-compose
+    - ln -s /usr/bin/python3 /usr/bin/python
+    # Install AWS-CLI
+    - curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+    - unzip awscli-bundle.zip
+    - ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+    # Configure AWS
+    - aws configure set region us-west-2
+    - aws configure set aws_access_key_id $AWS_REGISTRY_ID
+    - aws configure set aws_secret_access_key $AWS_REGISTRY_SECRET
+    # Login to docker registry
+    - docker login -u AWS -p $(aws ecr get-login-password) https://$(aws sts get-caller-identity --query 'Account' --output text).dkr.ecr.us-west-2.amazonaws.com
+    - sh scripts/download-envs.sh development
+    - sh scripts/setup-nginx.sh development
+    - docker-compose -f docker-compose.yml -f docker-compose.ci.yml up -d postgres # give psql some time to come up before other services
+    - npm install
+    - docker-compose -f docker-compose.yml -f docker-compose.ci.yml up -d
+    - sleep 10
+    - docker-compose -f docker-compose.yml -f docker-compose.ci.yml exec -T carpet bash insert_data.sh
+    - docker-compose -f docker-compose.yml -f docker-compose.ci.yml exec -T dragon bash db_seed.sh
+  script:
+    - sh integration_test.sh
+  except:
+    - staging
+    - master

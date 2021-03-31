@@ -10,7 +10,7 @@ variables:
   ENV: development
 
 services:
-  - docker:18.09.7-dind
+  - docker:20-dind
 
 integration_test:
   stage: test
@@ -34,6 +34,7 @@ integration_test:
     - npm install
     - docker-compose -f docker-compose.yml -f docker-compose.ci.yml up -d
     - sleep 10
+    - docker-compose -f docker-compose.yml -f docker-compose.ci.yml exec -T carpet python manage.py migrate
     - docker-compose -f docker-compose.yml -f docker-compose.ci.yml exec -T carpet bash insert_data.sh
     - docker-compose -f docker-compose.yml -f docker-compose.ci.yml exec -T dragon bash db_seed.sh
   script:

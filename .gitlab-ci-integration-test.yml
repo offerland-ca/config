@@ -10,17 +10,19 @@ variables:
   ENV: development
 
 services:
-  - docker:20-dind
+  - name: docker:20-dind
+    alias: localhost
 
 integration_test:
   stage: test
   before_script:
     - echo "Initiated by the $UPSTREAM_BRANCH branch of $UPSTREAM_SERVICE_NAME service"
-    - apk add --update zip curl npm python3 docker-compose
+    - apk add --update zip curl npm python3 docker-compose nginx
     - ln -s /usr/bin/python3 /usr/bin/python
     # Install AWS-CLI
     - curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
     - unzip awscli-bundle.zip
+    - rm awscli-bundle.zip
     - ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
     # Configure AWS
     - aws configure set region us-west-2
@@ -33,8 +35,7 @@ integration_test:
     - docker-compose -f docker-compose.yml -f docker-compose.ci.yml up -d postgres # give psql some time to come up before other services
     - npm install
     - docker-compose -f docker-compose.yml -f docker-compose.ci.yml up -d
-    - sleep 10
-    - docker-compose -f docker-compose.yml -f docker-compose.ci.yml exec -T carpet python manage.py migrate
+    - sh healthcheck_services.sh
     - docker-compose -f docker-compose.yml -f docker-compose.ci.yml exec -T carpet bash insert_data.sh
     - docker-compose -f docker-compose.yml -f docker-compose.ci.yml exec -T dragon bash db_seed.sh
   script:
@@ -42,3 +43,4 @@ integration_test:
   except:
     - staging
     - master
+

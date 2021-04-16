@@ -106,8 +106,8 @@ deploy staging:
       echo "Getting list of services"
       services=$(curl --no-progress-meter --connect-timeout 5 --retry 5 --request GET "${STAGING_SWARMPIT_URL}api/services" \
         --header 'Accept: application/json' \
-        --header "Authorization: Bearer ${PIT_AUTHORIZATION}" \
-        --header "offer-dev: ${OFFER_DEV}")
+        --header "Authorization: Bearer ${PIT_AUTHORIZATION_STAGING}" \
+        --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}")
       service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_${SERVICE_NAME}\")) | .id")
 
       for service_id in $service_ids; do
@@ -115,8 +115,8 @@ deploy staging:
         url="${STAGING_SWARMPIT_URL}api/services/${service_id}/redeploy"
         curl --no-progress-meter --connect-timeout 5 --retry 5 --request POST "${url}" \
           --header 'Accept: application/json' \
-          --header "Authorization: Bearer ${PIT_AUTHORIZATION}" \
-          --header "offer-dev: ${OFFER_DEV}"
+          --header "Authorization: Bearer ${PIT_AUTHORIZATION_STAGING}" \
+          --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}"
       done
   only:
     - staging
@@ -126,11 +126,22 @@ deploy production:
   stage: deploy
   image: alpine
   script:
-    - apk add --update curl
+    - apk add --update curl jq
     - |
-      curl -f -X POST -H "Content-Type: application/json" \
-      --data '{ "verysecret": "'$PRODUCTION_WEBHOOK_SECRET'" }' \
-      $PRODUCTION_WEBHOOK
+      echo "Getting list of services"
+      services=$(curl --no-progress-meter --connect-timeout 5 --retry 5 --request GET "${PROD_SWARMPIT_URL}api/services" \
+        --header 'Accept: application/json' \
+        --header "Authorization: Bearer ${PIT_AUTHORIZATION_PROD}" \
+        --header "offer-prod: ${OFFER_PROD_HTTP_HEADER}")
+      service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_${SERVICE_NAME}\")) | .id")
+
+      for service_id in $service_ids; do
+        echo "Redeploying service ${service_id}"
+        url="${PROD_SWARMPIT_URL}api/services/${service_id}/redeploy"
+        curl --no-progress-meter --connect-timeout 5 --retry 5 --request POST "${url}" \
+          --header 'Accept: application/json' \
+          --header "Authorization: Bearer ${PIT_AUTHORIZATION_PROD}" \
+          --header "offer-prod: ${OFFER_PROD_HTTP_HEADER}"
+      done
   only:
     - production
-

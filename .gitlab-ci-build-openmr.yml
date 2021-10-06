@@ -1,8 +1,10 @@
 stages:
   - build
-  - openMr
   - retagging
   - deploy
+
+# The following stage is removed as it was blocking us. Reason is still unknown.
+#  - openMr
 
 variables:
   USE_CONTAINER: "true"

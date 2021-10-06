@@ -45,7 +45,7 @@ Open MR Staging:
   only:
     - development
   script:
-    - bash merge-request.sh
+    - bash /usr/bin/merge-request.sh
 
 # The Open Merge Request tasks are all exactly the same in all services
 Open MR Production:
@@ -58,7 +58,7 @@ Open MR Production:
   only:
     - staging
   script:
-    - bash merge-request.sh
+    - bash /usr/bin/merge-request.sh
 
 retag dev to staging:
   stage: retagging

@@ -1,6 +1,5 @@
 stages:
   - build
-  - openMr
   - retagging
   - deploy
 
@@ -33,32 +32,6 @@ build:
     - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$CI_COMMIT_REF_SLUG-latest
   only:
     - development
-
-# The Open Merge Request tasks are all exactly the same in all services
-Open MR Staging:
-  stage: openMr
-  image: amirabdi/gitlab-auto-merge-request:1.1
-  before_script: []
-  variables:
-    TARGET_BRANCH: staging
-    GIT_STRATEGY: none # We do not need a clone of the GIT repository to create a Merge Request
-  only:
-    - development
-  script:
-    - bash /usr/bin/merge-request.sh
-
-# The Open Merge Request tasks are all exactly the same in all services
-Open MR Production:
-  stage: openMr
-  image: amirabdi/gitlab-auto-merge-request:1.1
-  before_script: []
-  variables:
-    TARGET_BRANCH: production
-    GIT_STRATEGY: none # We do not need a clone of the GIT repository to create a Merge Request
-  only:
-    - staging
-  script:
-    - bash /usr/bin/merge-request.sh
 
 retag dev to staging:
   stage: retagging

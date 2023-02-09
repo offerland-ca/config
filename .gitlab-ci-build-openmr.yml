@@ -32,6 +32,7 @@ build:
     - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$CI_COMMIT_REF_SLUG-latest
   only:
     - development
+    - testing
 
 retag dev to staging:
   stage: retagging
@@ -68,6 +69,31 @@ retag dev to production:
     - aws ecr put-image --repository-name offerland/$SERVICE_NAME --image-tag $CI_COMMIT_REF_SLUG-latest --image-manifest "$MANIFEST"
   only:
     - production
+
+# Hit the testing webhook to replace the image
+deploy testing:
+  stage: deploy
+  image: alpine
+  script:
+    - apk add --update curl jq
+    - |
+      echo "Getting list of services"
+      services=$(curl --no-progress-meter --connect-timeout 5 --retry 5 --request GET "${TESTING_SWARMPIT_URL}api/services" \
+        --header 'Accept: application/json' \
+        --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \
+        --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}")
+      service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_${SERVICE_NAME}\")) | .id")
+
+      for service_id in $service_ids; do
+        echo "Redeploying service ${service_id}"
+        url="${STAGING_SWARMPIT_URL}api/services/${service_id}/redeploy"
+        curl --no-progress-meter --connect-timeout 5 --retry 5 --request POST "${url}" \
+          --header 'Accept: application/json' \
+          --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \
+          --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}"
+      done
+  only:
+    - testing
 
 # Hit the staging webhook to replace the image
 deploy staging:

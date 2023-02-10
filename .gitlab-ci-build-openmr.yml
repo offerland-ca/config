@@ -86,7 +86,7 @@ deploy testing:
 
       for service_id in $service_ids; do
         echo "Redeploying service ${service_id}"
-        url="${STAGING_SWARMPIT_URL}api/services/${service_id}/redeploy"
+        url="${TESTING_SWARMPIT_URL}api/services/${service_id}/redeploy"
         curl --no-progress-meter --connect-timeout 5 --retry 5 --request POST "${url}" \
           --header 'Accept: application/json' \
           --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \

@@ -15,7 +15,7 @@ services:
 # The build tasks are all exactly the same in all services
 build:
   stage: build
-  image: amirabdi/docker:19.03.7-git-awscli2
+  image: ghcr.io/offerland-ca/dockerfile-docker-git-aws:23.0.1-git
   before_script:
     - aws configure set region us-west-2
     - aws configure set aws_access_key_id $AWS_REGISTRY_ID
@@ -36,7 +36,7 @@ build:
 
 retag dev to staging:
   stage: retagging
-  image: amirabdi/docker:19.03.7-git-awscli2
+  image: ghcr.io/offerland-ca/dockerfile-docker-git-aws:23.0.1-git
   before_script:
     - aws configure set region us-west-2
     - aws configure set aws_access_key_id $AWS_REGISTRY_ID
@@ -54,7 +54,7 @@ retag dev to staging:
 
 retag dev to production:
   stage: retagging
-  image: amirabdi/docker:19.03.7-git-awscli2
+  image: ghcr.io/offerland-ca/dockerfile-docker-git-aws:23.0.1-git
   before_script:
     - aws configure set region us-west-2
     - aws configure set aws_access_key_id $AWS_REGISTRY_ID

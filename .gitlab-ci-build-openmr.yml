@@ -35,6 +35,10 @@ build:
     - test-2
     - test-3
     - test-4
+    - test-5
+    - test-6
+    - test-7
+    - test-8
     - testing
     - development
 
@@ -173,6 +177,106 @@ deploy test-4:
       done
   only:
     - test-4
+
+# Hit the test-5 webhook to replace the image
+deploy test-5:
+  stage: deploy
+  image: alpine
+  script:
+    - apk add --update curl jq
+    - |
+      echo "Getting list of services"
+      services=$(curl --no-progress-meter --connect-timeout 5 --retry 5 --request GET "${TESTING_SWARMPIT_URL}api/services" \
+        --header 'Accept: application/json' \
+        --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \
+        --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}")
+      service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_test-5_${SERVICE_NAME}\")) | .id")
+
+      for service_id in $service_ids; do
+        echo "Redeploying service ${service_id}"
+        url="${TESTING_SWARMPIT_URL}api/services/${service_id}/redeploy"
+        curl --no-progress-meter --connect-timeout 5 --retry 5 --request POST "${url}" \
+          --header 'Accept: application/json' \
+          --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \
+          --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}"
+      done
+  only:
+    - test-5
+
+# Hit the test-6 webhook to replace the image
+deploy test-6:
+  stage: deploy
+  image: alpine
+  script:
+    - apk add --update curl jq
+    - |
+      echo "Getting list of services"
+      services=$(curl --no-progress-meter --connect-timeout 5 --retry 5 --request GET "${TESTING_SWARMPIT_URL}api/services" \
+        --header 'Accept: application/json' \
+        --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \
+        --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}")
+      service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_test-6_${SERVICE_NAME}\")) | .id")
+
+      for service_id in $service_ids; do
+        echo "Redeploying service ${service_id}"
+        url="${TESTING_SWARMPIT_URL}api/services/${service_id}/redeploy"
+        curl --no-progress-meter --connect-timeout 5 --retry 5 --request POST "${url}" \
+          --header 'Accept: application/json' \
+          --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \
+          --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}"
+      done
+  only:
+    - test-6
+
+# Hit the test-7 webhook to replace the image
+deploy test-7:
+  stage: deploy
+  image: alpine
+  script:
+    - apk add --update curl jq
+    - |
+      echo "Getting list of services"
+      services=$(curl --no-progress-meter --connect-timeout 5 --retry 5 --request GET "${TESTING_SWARMPIT_URL}api/services" \
+        --header 'Accept: application/json' \
+        --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \
+        --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}")
+      service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_test-7_${SERVICE_NAME}\")) | .id")
+
+      for service_id in $service_ids; do
+        echo "Redeploying service ${service_id}"
+        url="${TESTING_SWARMPIT_URL}api/services/${service_id}/redeploy"
+        curl --no-progress-meter --connect-timeout 5 --retry 5 --request POST "${url}" \
+          --header 'Accept: application/json' \
+          --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \
+          --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}"
+      done
+  only:
+    - test-7
+
+# Hit the test-8 webhook to replace the image
+deploy test-8:
+  stage: deploy
+  image: alpine
+  script:
+    - apk add --update curl jq
+    - |
+      echo "Getting list of services"
+      services=$(curl --no-progress-meter --connect-timeout 5 --retry 5 --request GET "${TESTING_SWARMPIT_URL}api/services" \
+        --header 'Accept: application/json' \
+        --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \
+        --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}")
+      service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_test-8_${SERVICE_NAME}\")) | .id")
+
+      for service_id in $service_ids; do
+        echo "Redeploying service ${service_id}"
+        url="${TESTING_SWARMPIT_URL}api/services/${service_id}/redeploy"
+        curl --no-progress-meter --connect-timeout 5 --retry 5 --request POST "${url}" \
+          --header 'Accept: application/json' \
+          --header "Authorization: Bearer ${PIT_AUTHORIZATION_TESTING}" \
+          --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}"
+      done
+  only:
+    - test-8
 
 # Hit the testing webhook to replace the image
 deploy testing:

@@ -31,7 +31,6 @@ build:
     - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$TAG_NAME
     - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$CI_COMMIT_REF_SLUG-latest
   only:
-    - sentry # for testing purpose
     - test-1
     - test-2
     - test-3

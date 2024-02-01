@@ -26,15 +26,11 @@ build:
     - echo "Building the image"
     - export TAG_NAME=$CI_COMMIT_REF_SLUG-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`
     - echo $TAG_NAME
-    - export SENTRY_ENABLED=${SENTRY_ENABLED:-}
-    - export SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN:-}
-    - echo SENTRY_AUTH_TOKEN $SENTRY_AUTH_TOKEN SENTRY_ENABLED $SENTRY_ENABLED
-    - docker build -t $ECR_URI_BASE/offerland/$SERVICE_NAME:$TAG_NAME -t $ECR_URI_BASE/offerland/$SERVICE_NAME:$CI_COMMIT_REF_SLUG-latest --build-arg SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN --build-arg SENTRY_ENABLED=$SENTRY_ENABLED .
+    - docker build -t $ECR_URI_BASE/offerland/$SERVICE_NAME:$TAG_NAME -t $ECR_URI_BASE/offerland/$SERVICE_NAME:$CI_COMMIT_REF_SLUG-latest --build-arg SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN:-} --build-arg SENTRY_ENABLED=${SENTRY_ENABLED:-} .
     - echo "Push image to AWS ECR as $ECR_URI_BASE/offerland/$SERVICE_NAME"
     - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$TAG_NAME
     - docker push $ECR_URI_BASE/offerland/$SERVICE_NAME:$CI_COMMIT_REF_SLUG-latest
   only:
-    - sentry # TODO:// should be removed
     - test-1
     - test-2
     - test-3

@@ -328,6 +328,32 @@ deploy staging:
   only:
     - staging
 
+deploy pre-production:
+  stage: deploy
+  image: alpine
+  script:
+    - apk add --update curl jq
+    - |
+      echo "Getting list of services"
+      services=$(curl --no-progress-meter --connect-timeout 5 --retry 5 --request GET "${STAGING_SWARMPIT_URL}api/services" \
+        --header 'Accept: application/json' \
+        --header "Authorization: Bearer ${PIT_AUTHORIZATION_STAGING}" \
+        --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}")
+      service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_${SERVICE_NAME}\")) | .id")
+
+      for service_id in $service_ids; do
+        echo "Redeploying service ${service_id}"
+        url="${STAGING_SWARMPIT_URL}api/services/${service_id}/redeploy"
+        curl --no-progress-meter --connect-timeout 5 --retry 5 --request POST "${url}" \
+          --header 'Accept: application/json' \
+          --header "Authorization: Bearer ${PIT_AUTHORIZATION_STAGING}" \
+          --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}"
+      done
+  only:
+    variables:
+      - $CI_COMMIT_REF_NAME == "pre-production"
+      - $SERVICE_NAME == "chinchilla"
+
 # Hit the production webhook to replace the image
 deploy production:
   stage: deploy

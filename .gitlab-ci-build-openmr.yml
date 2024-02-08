@@ -60,6 +60,24 @@ retag dev to staging:
   only:
     - staging
 
+retag dev to pre-production:
+  stage: retagging
+  image: ghcr.io/offerland-ca/dockerfile-docker-git-aws:23.0.1-git
+  before_script:
+    - aws configure set region us-west-2
+    - aws configure set aws_access_key_id $AWS_REGISTRY_ID
+    - aws configure set aws_secret_access_key $AWS_REGISTRY_SECRET
+    - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI_BASE
+    - docker info
+  script:
+    - export TAG_NAME=development-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`
+    - echo $TAG_NAME
+    - echo "Retagging development image as pre-production"
+    - MANIFEST=$(aws ecr batch-get-image --repository-name offerland/$SERVICE_NAME --image-ids imageTag=$TAG_NAME --query 'images[].imageManifest' --output text)
+    - aws ecr put-image --repository-name offerland/$SERVICE_NAME --image-tag $CI_COMMIT_REF_SLUG-latest --image-manifest "$MANIFEST"
+  only:
+    - pre-production
+
 retag dev to production:
   stage: retagging
   image: ghcr.io/offerland-ca/dockerfile-docker-git-aws:23.0.1-git
@@ -350,9 +368,7 @@ deploy pre-production:
           --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}"
       done
   only:
-    variables:
-      - $CI_COMMIT_REF_NAME == "pre-production"
-      - $SERVICE_NAME == "chinchilla"
+    - pre-production
 
 # Hit the production webhook to replace the image
 deploy production:

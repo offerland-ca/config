@@ -346,6 +346,7 @@ deploy staging:
   only:
     - staging
 
+# Hit the pre-production webhook to replace the image
 deploy pre-production:
   stage: deploy
   image: alpine
@@ -353,19 +354,19 @@ deploy pre-production:
     - apk add --update curl jq
     - |
       echo "Getting list of services"
-      services=$(curl --no-progress-meter --connect-timeout 5 --retry 5 --request GET "${STAGING_SWARMPIT_URL}api/services" \
+      services=$(curl --no-progress-meter --connect-timeout 5 --retry 5 --request GET "${PROD_SWARMPIT_URL}api/services" \
         --header 'Accept: application/json' \
-        --header "Authorization: Bearer ${PIT_AUTHORIZATION_STAGING}" \
-        --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}")
+        --header "Authorization: Bearer ${PIT_AUTHORIZATION_PROD}" \
+        --header "offer-prod: ${OFFER_PROD_HTTP_HEADER}")
       service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_${SERVICE_NAME}\")) | .id")
 
       for service_id in $service_ids; do
         echo "Redeploying service ${service_id}"
-        url="${STAGING_SWARMPIT_URL}api/services/${service_id}/redeploy"
+        url="${PROD_SWARMPIT_URL}api/services/${service_id}/redeploy"
         curl --no-progress-meter --connect-timeout 5 --retry 5 --request POST "${url}" \
           --header 'Accept: application/json' \
-          --header "Authorization: Bearer ${PIT_AUTHORIZATION_STAGING}" \
-          --header "offer-dev: ${OFFER_DEV_HTTP_HEADER}"
+          --header "Authorization: Bearer ${PIT_AUTHORIZATION_PROD}" \
+          --header "offer-prod: ${OFFER_PROD_HTTP_HEADER}"
       done
   only:
     - pre-production

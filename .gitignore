@@ -1,2 +1,6 @@
 # vim swaf files
 *.swp
+# IDE related directories
+.idea
+.vscode
+

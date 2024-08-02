@@ -55,7 +55,14 @@ retag dev to staging:
     - export TAG_NAME=development-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`
     - echo $TAG_NAME
     - echo "Retagging development image as staging"
-    - MANIFEST=$(aws ecr batch-get-image --repository-name offerland/$SERVICE_NAME --image-ids imageTag=$TAG_NAME --query 'images[].imageManifest' --output text)
+    - |
+      while true; do
+          MANIFEST=$(aws ecr batch-get-image --repository-name offerland/$SERVICE_NAME --image-ids imageTag=$TAG_NAME --query 'images[].imageManifest' --output text)
+          if [ -n "$MANIFEST" ]; then
+              break
+          fi
+          sleep 1
+      done
     - aws ecr put-image --repository-name offerland/$SERVICE_NAME --image-tag $CI_COMMIT_REF_SLUG-latest --image-manifest "$MANIFEST"
   only:
     - staging
@@ -73,7 +80,14 @@ retag dev to pre-production:
     - export TAG_NAME=development-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`
     - echo $TAG_NAME
     - echo "Retagging development image as pre-production"
-    - MANIFEST=$(aws ecr batch-get-image --repository-name offerland/$SERVICE_NAME --image-ids imageTag=$TAG_NAME --query 'images[].imageManifest' --output text)
+    - |
+      while true; do
+          MANIFEST=$(aws ecr batch-get-image --repository-name offerland/$SERVICE_NAME --image-ids imageTag=$TAG_NAME --query 'images[].imageManifest' --output text)
+          if [ -n "$MANIFEST" ]; then
+              break
+          fi
+          sleep 1
+      done    
     - aws ecr put-image --repository-name offerland/$SERVICE_NAME --image-tag $CI_COMMIT_REF_SLUG-latest --image-manifest "$MANIFEST"
   only:
     - pre-production
@@ -91,7 +105,14 @@ retag dev to production:
     - export TAG_NAME=development-`git show -s --format=%ct HEAD`-`git rev-parse --short=8 HEAD`
     - echo $TAG_NAME
     - echo "Retagging development image as production"
-    - MANIFEST=$(aws ecr batch-get-image --repository-name offerland/$SERVICE_NAME --image-ids imageTag=$TAG_NAME --query 'images[].imageManifest' --output text)
+    - |
+      while true; do
+          MANIFEST=$(aws ecr batch-get-image --repository-name offerland/$SERVICE_NAME --image-ids imageTag=$TAG_NAME --query 'images[].imageManifest' --output text)
+          if [ -n "$MANIFEST" ]; then
+              break
+          fi
+          sleep 1
+      done
     - aws ecr put-image --repository-name offerland/$SERVICE_NAME --image-tag $CI_COMMIT_REF_SLUG-latest --image-manifest "$MANIFEST"
   only:
     - production

@@ -358,7 +358,7 @@ deploy pre-production:
         --header 'Accept: application/json' \
         --header "Authorization: Bearer ${PIT_AUTHORIZATION_PROD}" \
         --header "offer-prod: ${OFFER_PROD_HTTP_HEADER}")
-      service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_${SERVICE_NAME}\")) | .id")
+      service_ids=$(echo $services | jq -r ".[] | select (.serviceName | startswith(\"offerland_ppe_${SERVICE_NAME}\")) | .id")
 
       for service_id in $service_ids; do
         echo "Redeploying service ${service_id}"
